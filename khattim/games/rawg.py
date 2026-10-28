@@ -1,4 +1,6 @@
 import requests
+import hashlib
+from django.core.cache import cache
 from django.conf import settings
 
 from .models import Game
@@ -23,7 +25,12 @@ def _get(path, **params):
         raise RawgUnavailable("Could not reach RAWG right now.")
 
 def search_games(query):
-    return _get("/games", search=query, page_size=10)["results"]
+    key = "rawg_search:" + hashlib.md5(query.strip().lower().encode()).hexdigest()
+    results = cache.get(key)
+    if results is None:
+        results = _get("/games", search=query, page_size=10)["results"]
+        cache.set(key, results, 60 * 60)
+    return results
 
 def import_game(rawg_id):
     game = Game.objects.filter(rawg_id=rawg_id).first()

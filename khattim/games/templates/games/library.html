@@ -1,0 +1,41 @@
+{% extends "games/base.html" %}
+{% block title %}My library{% endblock %}
+
+{% block content %}
+  <h2>My library</h2>
+
+  <p>
+    <a href="{% url 'library' %}">All</a>
+    {% for value, label in statuses %}
+      | <a href="{% url 'library' %}?status={{ value }}">{{ label }}</a>
+    {% endfor %}
+  </p>
+
+  {% for entry in entries %}
+    <div>
+      {% if entry.game.image %}
+        <img src="{{ entry.game.image }}" alt="{{ entry.game.name }}" width="160">
+      {% endif %}
+      <h3>{{ entry.game.name }}</h3>
+
+      <form method="post" action="{% url 'update_status' entry.pk %}">
+        {% csrf_token %}
+        <select name="status">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if entry.status == value %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+        <button type="submit">Save</button>
+      </form>
+
+      <form method="post" action="{% url 'remove_game' entry.pk %}">
+        {% csrf_token %}
+        <button type="submit">Remove</button>
+      </form>
+    </div>
+  {% empty %}
+    <p>No games here yet. <a href="{% url 'search' %}">Search for a game</a> to add.</p>
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "games/base.html" %}
+{% block title %}Khattim{% endblock %}
+
+{% block content %}
+  <h1>Khattim</h1>
+  <p>Too many games, not enough time? Khattim helps you decide what to play from the games you already own, based on your mood and the time you have.</p>
+
+  <ul>
+    <li>Add games to your personal library</li>
+    <li>Track each game: backlog, playing, finished, or dropped</li>
+    <li>Get a pick that fits your time and mood</li>
+  </ul>
+
+  {% if user.is_authenticated %}
+    <a href="{% url 'library' %}">Go to my library</a>
+  {% else %}
+    <a href="{% url 'register' %}">Create an account</a>
+    <a href="{% url 'login' %}">Login</a>
+  {% endif %}
+{% endblock %}
