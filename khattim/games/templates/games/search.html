@@ -1,0 +1,33 @@
+{% extends "games/base.html" %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+  <h2>Search games</h2>
+
+  <form method="get">
+    <input type="text" name="q" value="{{ query }}" placeholder="Game name">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if error %}
+    <p>{{ error }}</p>
+  {% endif %}
+
+  {% for game in results %}
+    <div>
+      {% if game.background_image %}
+        <img src="{{ game.background_image }}" alt="{{ game.name }}" width="160">
+      {% endif %}
+      <h3>{{ game.name }}</h3>
+
+      <form method="post" action="{% url 'add_game' game.id %}">
+        {% csrf_token %}
+        <button type="submit">Add to library</button>
+      </form>
+    </div>
+  {% empty %}
+    {% if query and not error %}
+      <p>No results.</p>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
