@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 
-from .forms import ProfileForm
+from .forms import ProfileForm, RecommendForm
 from .models import Profile, UserGame
 from .rawg import RawgUnavailable, import_game, search_games
 # Create your views here.
@@ -18,7 +18,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("profile")
+            return redirect("library")
     else:
         form = UserCreationForm()
     return render(request, "registration/register.html", {"form": form})
@@ -102,3 +102,76 @@ def remove_game(request, pk):
     entry.delete()
     messages.success(request, f"{name} was removed from your library.")
     return redirect("library")
+
+TIME_RULES = {
+    "short": (1, 10),
+    "medium": (5, 30),
+    "long": (15, None),
+}
+
+MOOD_GENRES = {
+    "relax": {"Casual", "Puzzle", "Simulation", "Family"},
+    "story": {"Adventure", "RPG"},
+    "challenge": {"Platformer", "Strategy", "Fighting", "Shooter"},
+    "action": {"Action", "Shooter", "Arcade", "Racing"},
+}
+
+def recommend_games(user, session_length, mood, limit=3):
+    entries = UserGame.objects.filter(
+        user=user,
+        status__in=[UserGame.Status.BACKLOG, UserGame.Status.PLAYING]
+    ).select_related("game")
+
+    low, high = TIME_RULES[session_length]
+    mood_genres = MOOD_GENRES[mood]
+    picks = []
+
+    for  entry in entries:
+        game = entry.game
+        score = 0
+        reasons = []
+
+        matched = mood_genres & set(game.genres)
+        if matched:
+            score += 3 * len(matched)
+            reasons.append(f"Matches your mood ({', '.join(sorted(matched))})")
+
+        if game.playtime and low <= game.playtime and (high is None or game.playtime <= high):
+            score += 2
+            reasons.append(f"Fits your time (about {game.playtime}h to beat)")
+
+        if entry.status == UserGame.Status.PLAYING:
+            score += 2
+            reasons.append("You already started it")
+
+        if score > 0:
+            picks.append({"entry": entry, "score": score, "reasons": reasons})
+
+    picks.sort(key=lambda p: (-p["score"], p["entry"].added_at))
+    return picks[:limit]
+
+@login_required
+def recommend(request):
+    form = RecommendForm(request.GET or None)
+    picks = None
+    if form.is_valid():
+        picks = recommend_games(
+            request.user,
+            form.cleaned_data["session_length"],
+            form.cleaned_data["mood"]
+        )
+    return render(request, "games/recommend.html", {"form": form, "picks": picks})
+
+@login_required
+def random_game(request):
+    entries = UserGame.objects.filter(
+        user=request.user,
+        status__in=[UserGame.Status.BACKLOG, UserGame.Status.PLAYING],
+    ).select_related("game")
+    
+
+    skip_id = request.GET.get("skip_id", "")
+    candidates = entries.exclude(pk=skip_id) if skip_id.isdigit() else entries
+
+    entry = candidates.order_by("?").first() or entries.first()
+    return render(request, "games/random_game.html", {"entry": entry})

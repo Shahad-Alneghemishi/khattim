@@ -3,7 +3,7 @@
 
 {% block content %}
   <h2>My library</h2>
-
+  <a href="{% url 'random_game' %}">Random game</a>
   <p>
     <a href="{% url 'library' %}">All</a>
     {% for value, label in statuses %}
@@ -20,14 +20,13 @@
 
       <form method="post" action="{% url 'update_status' entry.pk %}">
         {% csrf_token %}
-        <select name="status">
+        <select name="status" onchange="this.form.submit()">
           {% for value, label in statuses %}
             <option value="{{ value }}" {% if entry.status == value %}selected{% endif %}>
               {{ label }}
             </option>
           {% endfor %}
         </select>
-        <button type="submit">Save</button>
       </form>
 
       <form method="post" action="{% url 'remove_game' entry.pk %}">

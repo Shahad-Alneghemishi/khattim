@@ -1,0 +1,29 @@
+{% extends "games/base.html" %}
+{% block title %}What should I play?{% endblock %}
+
+{% block content %}
+  <h2>What should I play?</h2>
+
+  <form method="get">
+    {{ form.as_p }}
+    <button type="submit">Pick for me</button>
+  </form>
+
+  {% if picks is not None %}
+    {% for pick in picks %}
+      <div>
+        {% if pick.entry.game.image %}
+          <img src="{{ pick.entry.game.image }}" alt="{{ pick.entry.game.name }}" width="160">
+        {% endif %}
+        <h3>{{ pick.entry.game.name }}</h3>
+        <ul>
+          {% for reason in pick.reasons %}
+            <li>{{ reason }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% empty %}
+      <p>Nothing in your backlog matches. Try a different mood or add more games.</p>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

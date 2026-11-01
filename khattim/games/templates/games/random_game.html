@@ -1,0 +1,19 @@
+{% extends "games/base.html" %}
+{% block title %}Random game{% endblock %}
+
+{% block content %}
+  <h2>Random game</h2>
+
+  {% if entry %}
+    <div>
+      {% if entry.game.image %}
+        <img src="{{ entry.game.image }}" alt="{{ entry.game.name }}" width="240">
+      {% endif %}
+      <h3>{{ entry.game.name }}</h3>
+      <p>{{ entry.game.genres|join:", " }}</p>
+    </div>
+    <a href="{% url 'random_game' %}?skip_id={{ entry.pk }}">Pick another</a>
+  {% else %}
+    <p>You have no games to pick from. <a href="{% url 'search' %}">Add some games</a> first.</p>
+  {% endif %}
+{% endblock %}
