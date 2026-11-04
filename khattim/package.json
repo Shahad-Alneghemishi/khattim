@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  },
+  "scripts": {
+  "watch:css": "npx @tailwindcss/cli -i ./games/static/css/input.css -o ./games/static/css/output.css --watch",
+  "build:css": "npx @tailwindcss/cli -i ./games/static/css/input.css -o ./games/static/css/output.css --minify"
+  }
+}

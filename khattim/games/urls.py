@@ -17,4 +17,5 @@ urlpatterns = [
     path("library/<int:pk>/remove/", views.remove_game, name="remove_game"),
     path("recommend/", views.recommend, name="recommend"),
     path("random/", views.random_game, name="random_game"),
+    path("theme/", views.toggle_theme, name="toggle_theme"),
 ]

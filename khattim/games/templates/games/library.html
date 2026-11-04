@@ -2,39 +2,61 @@
 {% block title %}My library{% endblock %}
 
 {% block content %}
-  <h2>My library</h2>
-  <a href="{% url 'random_game' %}">Random game</a>
-  <p>
-    <a href="{% url 'library' %}">All</a>
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold">My library</h1>
+    <a href="{% url 'random_game' %}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500">Random game</a>
+  </div>
+  
+  <nav class="mb-6 flex flex-wrap gap-2 text-sm">
+    <a href="{% url 'library' %}" class="rounded-full px-3 py-1 {% if not current_status %} bg-indigo-600 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700{% endif %}">All</a>
     {% for value, label in statuses %}
-      | <a href="{% url 'library' %}?status={{ value }}">{{ label }}</a>
+      <a href="{% url 'library' %}?status={{ value }}" class="rounded-full px-3 py-1 {% if current_status == value %}bg-indigo-600 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700{% endif %}">{{ label }}</a>
     {% endfor %}
-  </p>
+  </nav>
 
-  {% for entry in entries %}
-    <div>
-      {% if entry.game.image %}
-        <img src="{{ entry.game.image }}" alt="{{ entry.game.name }}" width="160">
-      {% endif %}
-      <h3>{{ entry.game.name }}</h3>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for entry in entries %}
+      <article class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        {% if entry.game.image %}
+          <img src="{{ entry.game.image }}" alt="{{ entry.game.name }}" class="aspect-video w-full object-cover">
+        {% else %}
+          <div class="aspect-video w-full bg-slate-200 dark:bg-slate-800"></div>
+        {% endif %}
 
-      <form method="post" action="{% url 'update_status' entry.pk %}">
-        {% csrf_token %}
-        <select name="status" onchange="this.form.submit()">
-          {% for value, label in statuses %}
-            <option value="{{ value }}" {% if entry.status == value %}selected{% endif %}>
-              {{ label }}
-            </option>
-          {% endfor %}
-        </select>
-      </form>
+        <div class="space-y-3 p-4">
+          <h2 class="truncate text-lg font-semibold">{{ entry.game.name }}</h2>
 
-      <form method="post" action="{% url 'remove_game' entry.pk %}">
-        {% csrf_token %}
-        <button type="submit">Remove</button>
-      </form>
-    </div>
-  {% empty %}
-    <p>No games here yet. <a href="{% url 'search' %}">Search for a game</a> to add.</p>
-  {% endfor %}
+          <div class="flex flex-wrap gap-1">
+            {% for genre in entry.game.genres %}
+              <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ genre }}</span>
+            {% endfor %}
+          </div>
+
+          {% if entry.game.playtime %}
+            <p class="text-sm text-slate-500 dark:text-slate-400">About {{ entry.game.playtime }}h to beat</p>
+          {% endif %}
+
+          <div class="flex items-center justify-between gap-2">
+            <form method="post" action="{% url 'update_status' entry.pk %}">
+              {% csrf_token %}
+              <select name="status" onchange="this.form.submit()" class="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+                {% for value, label in statuses %}
+                  <option value="{{ value }}" {% if entry.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </form>
+
+            <form method="post" action="{% url 'remove_game' entry.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="text-sm text-red-600 hover:underline dark:text-red-400">Remove</button>
+            </form>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <p class="col-span-full text-slate-500 dark:text-slate-400">
+        No games here yet. <a href="{% url 'search' %}" class="text-indigo-600 underline dark:text-indigo-400">Search for a game</a> to add.
+      </p>
+    {% endfor %}
+  </div>
 {% endblock %}

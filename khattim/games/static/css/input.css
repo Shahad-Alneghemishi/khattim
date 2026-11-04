@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  input:where([type="text"], [type="password"], [type="email"], [type="search"]) {
+    @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-800;
+  }
+  input[type="file"] {
+    @apply block w-full text-sm file:me-3 file:border-0 file:bg-slate-200 file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-slate-300 dark:file:bg-slate-700 dark:hover:file:bg-slate-600;
+  }
+}

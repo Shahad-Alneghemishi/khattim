@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib import messages
 
-from .forms import ProfileForm, RecommendForm
+from .forms import ProfileForm, RecommendForm, RegisterForm
 from .models import Profile, UserGame
 from .rawg import RawgUnavailable, import_game, search_games
 # Create your views here.
@@ -14,13 +14,13 @@ def home(request):
 
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect("library")
     else:
-        form = UserCreationForm()
+        form = RegisterForm()
     return render(request, "registration/register.html", {"form": form})
 
 @login_required
@@ -105,8 +105,8 @@ def remove_game(request, pk):
 
 TIME_RULES = {
     "short": (1, 10),
-    "medium": (5, 30),
-    "long": (15, None),
+    "medium": (11, 30),
+    "long": (31, None),
 }
 
 MOOD_GENRES = {
@@ -175,3 +175,15 @@ def random_game(request):
 
     entry = candidates.order_by("?").first() or entries.first()
     return render(request, "games/random_game.html", {"entry": entry})
+
+@require_POST
+def toggle_theme(request):
+    new_theme = "light" if request.COOKIES.get("theme") == "dark" else "dark"
+
+    next_url = request.POST.get("next", "")
+    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        next_url = "home"
+
+    response = redirect(next_url)
+    response.set_cookie("theme", new_theme, max_age=60 * 60 * 24 * 365, samesite="Lax")
+    return response
