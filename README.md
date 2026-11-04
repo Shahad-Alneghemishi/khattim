@@ -63,9 +63,13 @@ Some values were adjusted by me based on my own experience with the games.
 ## Screenshots
 
 ![Home](docs/screenshots/home.png)
+*Home: what Khattim does, with shortcuts to your library and recommendations.*
 ![Library](docs/screenshots/library.png)
+*Library: your games as cards, filtered by status. Changing the status dropdown saves right away.*
 ![Recommendations](docs/screenshots/recommend.png)
+*What should I play?: pick the length and your mood, and get ranked picks with the reasons behind each one.*
 ![Dark mode](docs/screenshots/dark.png)
+*Dark mode, shown on the random game picker, which draws from your Backlog and Playing games.*
 
 ## Getting started
 
