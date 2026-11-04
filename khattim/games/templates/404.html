@@ -1,0 +1,17 @@
+{% extends "games/base.html" %}
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-md py-12 text-center">
+    <p class="text-6xl font-bold text-indigo-600 dark:text-indigo-400">404</p>
+    <h1 class="mt-4 text-2xl font-bold">Page not found</h1>
+    <p class="mt-2 text-slate-600 dark:text-slate-300">The page you are looking for does not exist or was moved.</p>
+
+    <div class="mt-6 flex flex-wrap justify-center gap-3">
+      <a href="{% url 'home' %}" class="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-500">Go home</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'library' %}" class="rounded-md border border-slate-300 px-5 py-2.5 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">My library</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
